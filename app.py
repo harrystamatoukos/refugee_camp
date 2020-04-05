@@ -14,9 +14,10 @@ st.sidebar.title('Parameters')
 days = st.sidebar.slider('days of simulation', 0, 250, 150)
 population = st.sidebar.slider('Population size', 0, 100_000, 20_000)
 intervention_day = st.sidebar.slider('Intervention day', 0, days, 10)
-decrease_r0 = st.sidebar.slider('New R0', 0, 14, 14)
-remove_people = st.sidebar.slider('Number of people removed from camp')
-fatality_rate = st.sidebar.slider('Fatality_rate in %', 1, 100, 1)
+inititalr0 = st.sidebar.slider('InitialR0', 0.0, 20.0, 14.0, 0.1)
+new_r0 = st.sidebar.slider('New R0', 0.0, 20.0, 14.0, 0.1)
+remove_people = st.sidebar.slider('Number of people removed from camp', 0, population)
+fatality_rate = st.sidebar.slider('Fatality_rate in %', 1.0, 100.0, 3.0, 0.1)
 
 
 """
@@ -29,8 +30,8 @@ days0 = intervention_day
 daysTotal = days  # total days to model
 
 
-r0 = 14.0  # https://en.wikipedia.org/wiki/Basic_reproduction_number
-r1 = 1.5  # reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
+r0 = inititalr0  # https://en.wikipedia.org/wiki/Basic_reproduction_number
+r1 = new_r0  # reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
 # it seems likely that measures will become more restrictive if r1 is not small enough
 
 timePresymptomatic = 2.5
@@ -50,6 +51,10 @@ sigma2 = 1/Incubation_period
 gamma2 = 1/Infectious_period
 
 Interevention = 0
+
+age0_1 = 60/100 * population
+age18_39 = 35/100 * population
+age50 = 5 / 100 * population
 
 
 def model(Y, x, N, beta0, days0, beta1, gamma, sigma):
