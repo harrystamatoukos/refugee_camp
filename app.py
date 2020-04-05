@@ -4,19 +4,19 @@ import pandas as pd
 import streamlit as st
 import scipy.integrate
 import scipy.ndimage.interpolation  # shift function
-#import base64
+import base64
 
 
 st.title('Refugee Camp Epidemic Model')
 
 
 st.sidebar.title('Parameters')
-days = st.sidebar.slider('days of simulation', 0, 250, 150)
+days = st.sidebar.slider('days of simulation', 0, 250, 75)
 population = st.sidebar.slider('Population size', 0, 100_000, 20_000)
 intervention_day = st.sidebar.slider('Intervention day', 0, days, 10)
 inititalr0 = st.sidebar.slider('InitialR0', 0.0, 20.0, 14.0, 0.1)
-new_r0 = st.sidebar.slider('New R0', 0.0, 20.0, 14.0, 0.1)
-remove_people = st.sidebar.slider('Number of people removed from camp', 0, population)
+new_r0 = st.sidebar.slider('New R0', 0.0, 20.0, 7.0, 0.1)
+#remove_people = st.sidebar.slider('Number of people removed from camp', 0, population)
 fatality_rate = st.sidebar.slider('Fatality_rate in %', 1.0, 100.0, 3.0, 0.1)
 
 
@@ -109,16 +109,40 @@ if st.checkbox('Show raw data'):
     st.write(data)
 
 
-st_ms = st.multiselect("Select different columns", data.columns.tolist(), default=cols)
-st.bar_chart(data[st_ms])
+new_df = data.melt('Days', var_name='Status', value_name='Population')
+new_df = new_df[new_df['Status'] != 'Susceptible']
+
+#st_ms = st.multiselect("Select different columns", data.columns.tolist(), default=cols)
 
 
-chart = alt.Chart(fatality).mark_bar().encode(y='Fatalities', x='Days')
+chart2 = alt.Chart(new_df).mark_bar(size=6.5).encode(
+    y='Population',
+    x='Days',
+    color=alt.Color('Status', scale=alt.Scale(scheme='tableau10')),
+    tooltip='Population'
+).properties(width=660, height=340
+             ).configure_axis(grid=False
+                              ).configure_view(strokeWidth=0
 
-st.write(chart)
+                                               )
+
+st.altair_chart(chart2)
+
+# st.bar_chart(data[st_ms])
 
 
-#csv = data.to_csv(index=False)
-# b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-#href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-#st.markdown(href, unsafe_allow_html=True)
+chart = alt.Chart(fatality).mark_bar().encode(
+    y='Fatalities', x='Days'
+).properties(width=580, height=340
+             ).configure_axis(grid=False
+                              ).configure_view(strokeWidth=0
+
+                                               )
+
+st.altair_chart(chart)
+
+
+csv = data.to_csv(index=False)
+b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+st.markdown(href, unsafe_allow_html=True)
