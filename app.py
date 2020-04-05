@@ -120,7 +120,7 @@ chart2 = alt.Chart(new_df).mark_bar(size=6.5).encode(
     x='Days',
     color=alt.Color('Status', scale=alt.Scale(scheme='tableau10')),
     tooltip='Population'
-).properties(width=660, height=340
+).properties(width=1000, height=600
              ).configure_axis(grid=False
                               ).configure_view(strokeWidth=0
 
@@ -139,7 +139,7 @@ chart = alt.Chart(fatality).mark_bar().encode(
 
                                                )
 
-st.altair_chart(chart)
+# st.altair_chart(chart)
 
 
 #csv = data.to_csv(index=False)
