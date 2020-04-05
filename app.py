@@ -4,7 +4,7 @@ import pandas as pd
 import streamlit as st
 import scipy.integrate
 import scipy.ndimage.interpolation  # shift function
-import base64
+#import base64
 
 
 st.title('Refugee Camp Epidemic Model')
@@ -142,7 +142,7 @@ chart = alt.Chart(fatality).mark_bar().encode(
 st.altair_chart(chart)
 
 
-csv = data.to_csv(index=False)
-b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
-href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
-st.markdown(href, unsafe_allow_html=True)
+#csv = data.to_csv(index=False)
+# b64 = base64.b64encode(csv.encode()).decode()  # some strings <-> bytes conversions necessary here
+#href = f'<a href="data:file/csv;base64,{b64}">Download CSV File</a> (right-click and save as &lt;some_name&gt;.csv)'
+#st.markdown(href, unsafe_allow_html=True)
