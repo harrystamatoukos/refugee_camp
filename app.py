@@ -2,7 +2,6 @@ import altair as alt
 import numpy as np
 import pandas as pd
 import streamlit as st
-import math
 import scipy.integrate
 import scipy.ndimage.interpolation  # shift function
 import base64
@@ -10,14 +9,20 @@ import base64
 
 st.title('Refugee Camp Epidemic Model')
 
+
 st.sidebar.title('Parameters')
 days = st.sidebar.slider('days of simulation', 0, 250, 150)
 population = st.sidebar.slider('Population size', 0, 100_000, 20_000)
 intervention_day = st.sidebar.slider('Intervention day', 0, days, 10)
-decrease_r0 = st.sidebar.slider('Effectiveness of Measures', 0, 100)
+decrease_r0 = st.sidebar.slider('New R0', 0, 14, 14)
 remove_people = st.sidebar.slider('Number of people removed from camp')
-fatality_rate = st.sidebar.slider('Fatality_rate in %', 0, 100)
+fatality_rate = st.sidebar.slider('Fatality_rate in %', 1, 100, 1)
 
+
+"""
+
+
+"""
 
 E0 = 1  # exposed at initial time step
 days0 = intervention_day
@@ -25,8 +30,7 @@ daysTotal = days  # total days to model
 
 
 r0 = 14.0  # https://en.wikipedia.org/wiki/Basic_reproduction_number
-# reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
-r1 = r0 - (r0 * decrease_r0/100)
+r1 = 1.5  # reproduction number after quarantine measures - https://papers.ssrn.com/sol3/papers.cfm?abstract_id=3539694
 # it seems likely that measures will become more restrictive if r1 is not small enough
 
 timePresymptomatic = 2.5
@@ -40,9 +44,7 @@ gamma = 1.0 / (2.0 * (generationTime - 1.0 / sigma))
 beta0 = r0 * gamma
 beta1 = r1 * gamma  # beta0 is used during days0 phase, beta1 after days0
 
-
 Infectious_period = 10
-
 Incubation_period = 5
 sigma2 = 1/Incubation_period
 gamma2 = 1/Infectious_period
@@ -77,6 +79,7 @@ def solve(model, population, E0, beta0, days0, beta1, gamma, sigma):
 
 X, S, E, I, R = solve(model, population, E0, beta0, days0, beta1, gamma, sigma)
 
+
 # estimate deaths from recovered
 infectionFatalityRateA = fatality_rate/100
 D = np.arange(daysTotal)
@@ -89,8 +92,8 @@ for i, x in enumerate(X):
     DPrev = D[i]
 
 
-data = pd.DataFrame({'Days': X, 'Susceptible': S, 'Exposed': E, 'Infectious': I, 'Removed': R})
-
+data = pd.DataFrame({'Days': X, 'Susceptible': S, 'Exposed': E,
+                     'Infectious': I, 'Removed': R, 'Fatalities': D})
 cols = ["Susceptible", "Exposed", "Infectious", "Removed"]
 
 
@@ -99,6 +102,7 @@ fatality = pd.DataFrame({'Days': X, 'Fatalities': D})
 if st.checkbox('Show raw data'):
     st.subheader('Raw data')
     st.write(data)
+
 
 st_ms = st.multiselect("Select different columns", data.columns.tolist(), default=cols)
 st.bar_chart(data[st_ms])
